@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# configure timezone
+
+ln -fs /usr/share/zoneinfo/${TZ:-Etc/UTC} /etc/localtime
+
+echo ${TZ:-Etc/UTC} > /etc/timezone
+
+# create user
+
+groupadd --force -g $DEV_GROUP dev
+
+useradd -ms /bin/bash --no-user-group -g $DEV_GROUP -u $DEV_USER dev
+
+# create .composer directory
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+# run entrypoints
+
+for f in /usr/local/entrypoints/*.sh; do
+  bash "$f" -H 
+done
+
+# start supervisor
+
+/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+for dir in */ ; do
+
+    image=`basename "$dir"`
+
+    echo Building image \"hyperlab-be/$image\"
+
+    docker build --tag hyperlab-be/$image ./$dir
+
+    if [[ $* == *--push* ]] ; then
+        docker push hyperlab-be/$image
+    fi
+
+done
