@@ -22,8 +22,8 @@ chmod -R ugo+rw /.composer
 
 # run entrypoints
 
-for f in /usr/local/entrypoints/*.sh; do
-  bash "$f" -H 
+for file in /usr/local/entrypoints/*; do
+  $file
 done
 
 # start supervisor
