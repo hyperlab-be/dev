@@ -119,7 +119,7 @@ dev exec matching php artisan migrate
 The PHP image can be used in a `Dockerfile` file as follows:
 
 ```dockerfile
-FROM hyperlab-be/php-8.0
+FROM hyperlabbe/php-8.0
 
 # set the timezone
 ENV TZ=Europe/Brussels
@@ -205,7 +205,7 @@ volumes:
 services:
   pubsub:
     container_name: pubsub
-    image: hyperlab-be/pubsub-emulator
+    image: hyperlabbe/pubsub-emulator
     restart: unless-stopped
     ports:
       - 8085:8085

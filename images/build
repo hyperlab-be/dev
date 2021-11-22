@@ -1,15 +1,27 @@
 #!/usr/bin/env bash
 
-for dir in */ ; do
+if [[ $* == *--push* ]] ; then
 
-    image=`basename "$dir"`
+    for dir in */ ; do
 
-    echo Building image \"hyperlab-be/$image\"
+        image=`basename "$dir"`
 
-    docker build --tag hyperlab-be/$image ./$dir
+        echo Building and pushing image \"hyperlabbe/$image\"
 
-    if [[ $* == *--push* ]] ; then
-        docker push hyperlab-be/$image
-    fi
+        docker buildx build --platform linux/amd64,linux/arm64 --tag hyperlabbe/$image --push ./$dir
 
-done
+    done
+
+else
+
+    for dir in */ ; do
+
+        image=`basename "$dir"`
+
+        echo Building image \"hyperlabbe/$image\"
+
+        docker build --tag hyperlabbe/$image ./$dir
+
+    done
+
+fi
