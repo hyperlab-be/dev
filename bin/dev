@@ -5,92 +5,56 @@ export DEV_GROUP=${DEV_GROUP:-$(id -g)}
 
 if [ $# -gt 0 ]; then
 
-    # dev build
+    # dev build {?SERVICE}
     if [ "$1" == "build" ]; then
         docker compose build "${@:2}"
 
-    # dev start
+    # dev start {?SERVICE}
     elif [ "$1" == "start" ]; then
         docker compose up -d "${@:2}"
 
-    # dev rebuild
+    # dev rebuild {?SERVICE}
     elif [ "$1" == "rebuild" ]; then
         docker compose up -d --build "${@:2}"
 
-    # dev restart
+    # dev restart {?SERVICE}
     elif [ "$1" == "restart" ]; then
         docker compose restart "${@:2}"
 
-    # dev stop
+    # dev stop {?SERVICE}
     elif [ "$1" == "stop" ]; then
         docker compose down "${@:2}"
 
-    # dev identity build
-    elif [ "$2" == "build" ]; then
-        docker compose build "$1"
+    # dev logs {SERVICE}
+    elif [ "$1" == "logs" ]; then
+        docker compose logs "${@:2}"
 
-    # dev identity start
-    elif [ "$2" == "start" ]; then
-        docker compose up -d "$1"
+    # dev shell {SERVICE}
+    elif [ "$1" == "shell" ]; then
+       docker compose exec -u dev "$2" bash
 
-    # dev identity rebuild
-    elif [ "$2" == "rebuild" ]; then
-        docker compose up -d --build "$1"
-
-    # dev identity restart
-    elif [ "$2" == "restart" ]; then
-        docker compose restart "$1"
-    
-    # dev identity stop
-    elif [ "$2" == "stop" ]; then
-        docker compose down "$1"
-
-    # dev identity composer install
-    elif [ "$2" == "composer" ] || [ "$2" == "com" ]; then
-        docker compose exec -u dev "$1" composer "${@:3}"
-    
-    # dev identity artisan migrate:fresh
-    elif [ "$2" == "artisan" ] || [ "$2" == "art" ]; then
-        docker compose exec -u dev "$1" php artisan "${@:3}"
-
-    # dev identity shell
-    elif [ "$2" == "shell" ] || [ "$2" == "sh" ]; then
-        docker compose exec -u dev "$1" bash
-
-    # dev identity logs
-    elif [ "$2" == "logs" ]; then
-        docker compose logs "$1" "${@:3}"
-
-    # dev identity ls
+    # dev {SERVICE} {COMMAND}
     else
         docker compose exec -u dev "$1" "${@:2}"
 
     fi
     
 else
-    echo "Environment commands:  dev {COMMAND}" >&2
+    echo "Commands:" >&2
     echo
-    echo "   build        Build the environment"
-    echo "   start        Start the environment"
-    echo "   rebuild      Rebuild and restart the changed the container"
-    echo "   restart      Restart the environment"
-    echo "   stop         Stop the environment"
-    echo
-    echo "Service commands:  dev {SERVICE} {COMMAND} [ARGS]" >&2
-    echo
-    echo "   build        Build the service"
-    echo "   start        Start the service"
-    echo "   rebuild      Rebuild the service"
-    echo "   restart      Restart the service"
-    echo "   stop         Stop the service"
-    echo "   composer     Run a Composer command against the service"
-    echo "   com"
-    echo "   artisan      Run an Artisan command against the service"
-    echo "   art"
-    echo "   shell        Open an interactive shell with the service"
-    echo "   sh"
-    echo "   logs         Print the logs of the service"
-    echo "   {COMMAND}    Run an arbitrary command against the service"
+    echo "  build                  Build the environment"
+    echo "  build {service}        Build the service"
+    echo "  start                  Start the environment"
+    echo "  start {service}        Start the service"
+    echo "  rebuild                Rebuild the environment"
+    echo "  rebuild {service}      Rebuild the service"
+    echo "  restart                Restart the environment"
+    echo "  restart {service}      Restart the service"
+    echo "  stop                   Stop the environment"
+    echo "  stop {service}         Stop the service"
+    echo "  logs {service}         Print the logs of the service"
+    echo "  shell {service}        Open an interactive shell into the service"
+    echo "  {service} {command}    Run an arbitrary command against the service"
     echo
     exit 1
 
