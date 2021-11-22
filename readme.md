@@ -114,4 +114,105 @@ dev exec matching php artisan migrate
 
 # Docker images
 
-...
+## PHP
+
+The PHP image can be used in a `Dockerfile` file as follows:
+
+```dockerfile
+FROM hyperlab-be/php-8.0
+
+# set the timezone
+ENV TZ=Europe/Brussels
+
+# add a crontab to periodically run a command in the container
+COPY scheduler /etc/cron.d/scheduler
+# add a script to initialize the container every time it is started
+COPY init /usr/local/entrypoints/init
+# add a supervisor config file to run a daemon process in the container
+COPY daemons.conf /etc/supervisor/conf.d/daemons.conf
+
+ARG REPMAN_TOKEN
+
+RUN echo \
+    # install mysql
+    && apt-get update \
+    && apt-get install -y default-mysql-client \
+    && apt-get -y autoremove \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # configure composer
+    && composer config --global --auth http-basic.hyperlab.repo.repman.io token $REPMAN_TOKEN \
+    # load the scheduler crontab
+    && crontab /etc/cron.d/scheduler \
+    # make the init script executable
+    && chmod +x /usr/local/entrypoints/init
+```
+
+The other files should look something like this:
+
+- `scheduler`:
+
+    ```
+    * * * * * /usr/local/bin/php /var/www/html/artisan schedule:run > /proc/1/fd/1 2> /proc/1/fd/2
+    # An empty line is required at the end of this file for a valid cron file.
+    ```
+
+- `init`:
+
+    ```
+    #!/bin/bash
+
+    php artisan route:cache
+    php artisan config:cache
+    php artisan pubsub:register
+    php artisan migrate --force
+
+    cron
+    ```
+
+- `daemons.conf`:
+
+    ```
+    [program:horizon]
+    directory = /var/www/html
+    command = php artisan horizon
+    user=dev
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+
+    [program:pubsub]
+    directory = /var/www/html
+    command = php artisan queue:work pubsub
+    user=dev
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    ```
+
+## Google Pub/Sub emulator
+
+The Google Pub/Sub emulator image can be used in a `docker-compose.yml` file as follows:
+
+```yaml
+version: '3'
+networks:
+  dev: {}
+volumes:
+  pubsub: {}
+services:
+  pubsub:
+    container_name: pubsub
+    image: hyperlab-be/pubsub-emulator
+    restart: unless-stopped
+    ports:
+      - 8085:8085
+    networks:
+      - dev
+    volumes:
+      - pubsub:/opt/data
+    environment:
+      - PUBSUB_PROJECT_ID=besomeone
+```
