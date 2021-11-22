@@ -98,18 +98,18 @@ The `shell` command can be used to open an interactive shell into the Docker con
 dev shell identity
 ```
 
-## Arbitrary commands
+## Exec
 
-You can also run arbitrary commands in the Docker container of a service.
+The `exec` command can be used to execute an arbitrary command in the Docker container of a service.
 
 ```bash
 # install the composer dependencies of the `identity` service
 
-dev identity composer install
+dev exec identity composer install
 
 # migrate the database of the `matching` service
 
-dev matching php artisan migrate
+dev exec matching php artisan migrate
 ```
 
 # Docker images

@@ -33,28 +33,38 @@ if [ $# -gt 0 ]; then
     elif [ "$1" == "shell" ]; then
        docker compose exec -u dev "$2" bash
 
-    # dev {SERVICE} {COMMAND}
+    # dev exec {SERVICE} {COMMAND}
+    elif [ "$1" == "exec" ]; then
+        docker compose exec -u dev "$2" "${@:3}"
+
     else
-        docker compose exec -u dev "$1" "${@:2}"
+        echo "Unknown command"
 
     fi
     
 else
     echo "Commands:" >&2
     echo
-    echo "  build                  Build the environment"
-    echo "  build {service}        Build the service"
-    echo "  start                  Start the environment"
-    echo "  start {service}        Start the service"
-    echo "  rebuild                Rebuild the environment"
-    echo "  rebuild {service}      Rebuild the service"
-    echo "  restart                Restart the environment"
-    echo "  restart {service}      Restart the service"
-    echo "  stop                   Stop the environment"
-    echo "  stop {service}         Stop the service"
-    echo "  logs {service}         Print the logs of the service"
-    echo "  shell {service}        Open an interactive shell into the service"
-    echo "  {service} {command}    Run an arbitrary command against the service"
+    echo "  build                       Build the Docker image of the services"
+    echo "  build {service}             Build the Docker image of a service"
+    echo
+    echo "  start                       Run the Docker image of the services as a Docker container"
+    echo "  start {service}             Run the Docker image of a service as a Docker container"
+    echo
+    echo "  rebuild                     Rebuild the Docker image of the changed services and update their Docker containers"
+    echo "  rebuild {service}           Rebuild the Docker image of a changed service and update its Docker container"
+    echo
+    echo "  restart                     Restart the Docker container of the services"
+    echo "  restart {service}           Restart the Docker container of a service"
+    echo
+    echo "  stop                        Stop the Docker container of the services"
+    echo "  stop {service}              Stop the Docker container of a service"
+    echo
+    echo "  logs {service}              Print the logs of the Docker container of a service"
+    echo
+    echo "  shell {service}             Open an interactive shell into the Docker container of a service"
+    echo
+    echo "  exec {service} {command}    Execute an arbitrary command in the Docker container of a service"
     echo
     exit 1
 
